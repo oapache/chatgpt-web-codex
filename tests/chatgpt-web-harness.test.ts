@@ -2569,6 +2569,58 @@ describe("ChatGPT outer-native harness v4", () => {
     }
   });
 
+  test("codex_tool_inventory loads deferred subagent tools through the harness tool_search", async () => {
+    const socketPath = brokerTestEndpoint(`cgw-h3-search-${process.pid}-${Date.now()}`);
+    const broker = TurnBroker.forSocket(socketPath);
+    const environment = extractChatGptTurnEnvironment(parsed(environmentXml));
+    environment.tools = [
+      { name: "exec_command", description: "Run a command", parameters: { type: "object" } },
+      {
+        name: "tool_search",
+        description: "Search for additional tools to load for the next turn.",
+        parameters: { type: "object", properties: { query: { type: "string" } }, required: ["query"] },
+        toolSearch: true,
+      },
+    ];
+    const token = await broker.register(environment, 60_000);
+    const transport = new StdioClientTransport({
+      command: process.execPath,
+      args: ["src/cli.ts", "mcp", "--broker-socket", socketPath],
+      cwd: process.cwd(),
+      stderr: "pipe",
+    });
+    const client = new Client({ name: "codex-chatgpt-web-harness-test", version: "1.0.0" });
+
+    try {
+      await client.connect(transport);
+      const inventory = client.callTool({
+        name: "codex_tool_inventory",
+        arguments: { turn_token: token, query: "spawn_agent" },
+      });
+      const [searchRequest] = await broker.nextToolBatch(token);
+      expect(searchRequest).toMatchObject({
+        wireName: "tool_search",
+        freeform: false,
+        arguments: { query: "spawn_agent" },
+      });
+      broker.completeTool(token, searchRequest!.callId, toolResult({ loaded: ["multi_agent_v1__spawn_agent"] }));
+      const searched = (await inventory).structuredContent as {
+        deferred_tool_search?: { query: string; result: string };
+      };
+      expect(searched.deferred_tool_search?.query).toBe("spawn_agent");
+      expect(searched.deferred_tool_search?.result).toContain("multi_agent_v1__spawn_agent");
+
+      const alreadyLoaded = await client.callTool({
+        name: "codex_tool_inventory",
+        arguments: { turn_token: token, query: "exec_command" },
+      });
+      expect((alreadyLoaded.structuredContent as Record<string, unknown>).deferred_tool_search).toBeUndefined();
+    } finally {
+      await client.close();
+      await broker.close();
+    }
+  });
+
   test("serves the complete outer-native bridge contract over MCP stdio", async () => {
     const socketPath = brokerTestEndpoint(`cgw-h3-mcp-${process.pid}-${Date.now()}`);
     const broker = TurnBroker.forSocket(socketPath);
