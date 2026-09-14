@@ -106,7 +106,7 @@ Then, in the launcher:
 
 1. Sign in inside the launcher's embedded ChatGPT browser.
 2. Run the browser smoke test.
-3. Press **Install models**, restart Codex once, and select **ChatGPT Web — High**.
+3. Press **Install models**, restart Codex once, and select **ChatGPT + Codex High**.
 
 ## Full harness setup
 

@@ -78,7 +78,7 @@ body:
     attributes:
       label: Selected model
       description: Use the exact Codex model-picker name, or write "not applicable" for setup failures.
-      placeholder: ChatGPT Web — High
+      placeholder: ChatGPT + Codex High
     validations:
       required: true
 

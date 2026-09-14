@@ -44,7 +44,7 @@ describe("fixed ChatGPT Web model routes", () => {
       ["chatgpt-web/extra-high", "xhigh", "xhigh"],
       ["chatgpt-web/pro", "ultra", "max"],
     ]);
-    expect(CHATGPT_WEB_MODEL_ROUTES[0]?.displayName).toBe("ChatGPT Web — Instant");
+    expect(CHATGPT_WEB_MODEL_ROUTES[0]?.displayName).toBe("ChatGPT + Codex Instant");
   });
 
   test("exposes only Plus-eligible routes without the Pro account capability", () => {
