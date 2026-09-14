@@ -166,7 +166,7 @@ test("DEV runtime supervision ignores launcher version mismatch and starts only 
     releaseVersion: "9.9.9",
     purpose: "dev-harness",
     mode: "full",
-    appName: "Codex Native2 DEV",
+    appName: "Codex Native4 DEV",
     tunnel: {
       binaryPath: path.join(root, "bin", "tunnel-client"),
       tunnelId: "tunnel_0123456789abcdef0123456789abcdef",

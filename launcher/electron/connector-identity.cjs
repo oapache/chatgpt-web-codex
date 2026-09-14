@@ -1,6 +1,6 @@
-const CURRENT_CONNECTOR_NAME = "Codex Native2";
+const CURRENT_CONNECTOR_NAME = "Codex Native4";
 const DEV_CONNECTOR_NAME = `${CURRENT_CONNECTOR_NAME} DEV`;
-const LEGACY_CONNECTOR_NAMES = Object.freeze(["Codex Native"]);
+const LEGACY_CONNECTOR_NAMES = Object.freeze(["Codex Native", "Codex Native2", "Codex Native3"]);
 
 function validateConnectorName(value) {
   if (typeof value !== "string" || !value.trim() || value.length > 80) {

@@ -695,6 +695,39 @@ export async function runChatGptMcpServer(options: {
         });
       },
     );
+
+    // Waiting only observes a subagent. Routing it through the destructive codex_tool_call let
+    // ChatGPT's per-call filter block polls; this read-only tool carries the same native wait.
+    server.registerTool(
+      "codex_agent_wait",
+      {
+        title: "Wait for a spawned subagent",
+        description: `Wait for subagents started with multi_agent_v1__spawn_agent and return their status. Pass the agent ids returned by the spawn. Each call waits ${CHATGPT_WEB_AGENT_WAIT_POLL_MS / 1_000} seconds; a result with timed_out true means the agent is still running, so call again.`,
+        inputSchema: {
+          turn_token: turnTokenSchema,
+          targets: z.array(z.string().min(1).max(256)).min(1).max(16),
+        },
+        annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+      },
+      async ({ turn_token, targets }, extra) => withClaimedTurn(
+        "codex_agent_wait",
+        turn_token,
+        extra,
+        async claimed => {
+          const bound = claimed.environment;
+          const waitTool = bound.tools.find(tool => wireName(tool) === "multi_agent_v1__wait_agent");
+          if (!waitTool) {
+            return result({
+              code: "wait_tool_not_loaded",
+              message: "multi_agent_v1__wait_agent is not loaded in this turn. Call codex_tool_inventory with query \"spawn_agent\" as a call of its own, then call codex_agent_wait again.",
+            }, true);
+          }
+          return invoke(claimed.bindingId, bound, waitTool, {
+            arguments: { targets, timeout_ms: CHATGPT_WEB_AGENT_WAIT_POLL_MS },
+          }, extra.signal);
+        },
+      ),
+    );
   }
 
   server.registerTool(

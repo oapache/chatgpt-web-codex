@@ -98,7 +98,7 @@ Video walkthroughs:
 
 Browser-only mode needs no connector. Full harness mode requires all of the following:
 
-- a newly created connector named exactly **Codex Native3**;
+- a newly created connector named exactly **Codex Native4**;
 - **Developer Mode** enabled in ChatGPT;
 - the exact Tunnel selected with **Authentication: None**;
 - the connector and Tunnel on the same OpenAI account as the ChatGPT workspace;
@@ -106,7 +106,7 @@ Browser-only mode needs no connector. Full harness mode requires all of the foll
 - **Connect harness** completed before **Verify runtime**.
 
 Do not rename or refresh an old **Codex Native** connector. ChatGPT caches the public MCP contract by
-connector identity, so create **Codex Native3** as a new connector.
+connector identity, so create **Codex Native4** as a new connector.
 
 ### ChatGPT shows `Error creating connector`
 
@@ -211,7 +211,7 @@ To remove the integration safely:
 1. Open **Settings → Remove Codex integration** and wait for it to restore the previous Codex route.
 2. Fully restart Codex.
 3. Quit the launcher and uninstall the application normally for the platform.
-4. If Full harness was configured and is no longer wanted, separately delete **Codex Native3**, its
+4. If Full harness was configured and is no longer wanted, separately delete **Codex Native4**, its
    Tunnel, and the API key created for that Tunnel from the corresponding account settings.
 
 Deleting the application before step 1 can leave Codex pointed at a local route that no longer

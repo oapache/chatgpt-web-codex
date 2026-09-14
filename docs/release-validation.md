@@ -20,7 +20,7 @@ Run this list on a maintained Windows 11 x64 machine with a real ChatGPT account
 3. Install the Codex model route, restart Codex, and prove that every account-available ChatGPT Web
    effort appears exactly once without removing native models.
 4. Complete one Browser-only turn and verify streamed commentary plus the final answer.
-5. Configure the `Codex Native3` connector, run **Verify runtime**, and complete one Full-mode local
+5. Configure the `Codex Native4` connector, run **Verify runtime**, and complete one Full-mode local
    tool turn. Repeat with Pro when the account exposes Pro.
 6. Drive a chat past the compaction threshold and prove that it continues after compaction without
    a duplicate or orphaned browser turn.

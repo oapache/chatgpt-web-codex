@@ -2621,6 +2621,82 @@ describe("ChatGPT outer-native harness v4", () => {
     }
   });
 
+  test("codex_agent_wait polls the native subagent wait through a read-only tool", async () => {
+    const socketPath = brokerTestEndpoint(`cgw-h3-wait-${process.pid}-${Date.now()}`);
+    const broker = TurnBroker.forSocket(socketPath);
+    const environment = extractChatGptTurnEnvironment(parsed(environmentXml));
+    environment.tools = [
+      { name: "exec_command", description: "Run a command", parameters: { type: "object" } },
+      {
+        name: "wait_agent",
+        namespace: "multi_agent_v1",
+        description: "Wait for sub-agents",
+        parameters: { type: "object", properties: { targets: { type: "array" }, timeout_ms: { type: "number" } } },
+      },
+    ];
+    const token = await broker.register(environment, 60_000);
+    const transport = new StdioClientTransport({
+      command: process.execPath,
+      args: ["src/cli.ts", "mcp", "--broker-socket", socketPath],
+      cwd: process.cwd(),
+      stderr: "pipe",
+    });
+    const client = new Client({ name: "codex-chatgpt-web-harness-test", version: "1.0.0" });
+
+    try {
+      await client.connect(transport);
+      const listed = await client.listTools();
+      expect(listed.tools.find(tool => tool.name === "codex_agent_wait")?.annotations).toMatchObject({
+        readOnlyHint: true,
+        destructiveHint: false,
+      });
+
+      const waiting = client.callTool({
+        name: "codex_agent_wait",
+        arguments: { turn_token: token, targets: ["agent_luna"] },
+      });
+      const [waitRequest] = await broker.nextToolBatch(token);
+      expect(waitRequest).toMatchObject({
+        wireName: "multi_agent_v1__wait_agent",
+        freeform: false,
+        arguments: { targets: ["agent_luna"], timeout_ms: 30_000 },
+      });
+      broker.completeTool(token, waitRequest!.callId, toolResult({ status: {}, timed_out: true }));
+      expect((await waiting).structuredContent).toEqual({ status: {}, timed_out: true });
+    } finally {
+      await client.close();
+      await broker.close();
+    }
+  });
+
+  test("codex_agent_wait reports when the subagent tools are not loaded yet", async () => {
+    const socketPath = brokerTestEndpoint(`cgw-h3-wait-unloaded-${process.pid}-${Date.now()}`);
+    const broker = TurnBroker.forSocket(socketPath);
+    const environment = extractChatGptTurnEnvironment(parsed(environmentXml));
+    environment.tools = [{ name: "exec_command", description: "Run a command", parameters: { type: "object" } }];
+    const token = await broker.register(environment, 60_000);
+    const transport = new StdioClientTransport({
+      command: process.execPath,
+      args: ["src/cli.ts", "mcp", "--broker-socket", socketPath],
+      cwd: process.cwd(),
+      stderr: "pipe",
+    });
+    const client = new Client({ name: "codex-chatgpt-web-harness-test", version: "1.0.0" });
+
+    try {
+      await client.connect(transport);
+      const response = await client.callTool({
+        name: "codex_agent_wait",
+        arguments: { turn_token: token, targets: ["agent_luna"] },
+      });
+      expect(response.isError).toBe(true);
+      expect((response.structuredContent as { code?: string }).code).toBe("wait_tool_not_loaded");
+    } finally {
+      await client.close();
+      await broker.close();
+    }
+  });
+
   test("serves the complete outer-native bridge contract over MCP stdio", async () => {
     const socketPath = brokerTestEndpoint(`cgw-h3-mcp-${process.pid}-${Date.now()}`);
     const broker = TurnBroker.forSocket(socketPath);
@@ -2670,6 +2746,7 @@ describe("ChatGPT outer-native harness v4", () => {
       await client.connect(transport);
       const listed = await client.listTools();
       expect(listed.tools.map(tool => tool.name).sort()).toEqual([
+        "codex_agent_wait",
         "codex_apply_patch",
         "codex_context_fetch",
         "codex_exec",
@@ -2691,7 +2768,7 @@ describe("ChatGPT outer-native harness v4", () => {
       // ChatGPT caches the complete tools/list contract under a connector identity.
       // An intentional hash change therefore requires an explicit connector refresh or identity migration.
       expect(createHash("sha256").update(canonicalJson(publicConnectorAbi)).digest("hex"))
-        .toBe("5040c9b089870a7eea3bfca3d2906cf321a18df81c62f9c8fcf8f3a73c366006");
+        .toBe("c525d8be5a308771c7e495e36ffa9455b54dbf5b577c5f3c4545456190eab6c7");
       for (const tool of listed.tools) {
         const properties = tool.inputSchema.properties as Record<string, unknown>;
         expect(properties.turn_token).toEqual({ type: "string", minLength: 20, maxLength: 256 });

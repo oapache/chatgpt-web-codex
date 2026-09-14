@@ -116,13 +116,13 @@ Full mode connects ChatGPT's tool calls back to the current Codex task through t
 1. Open **MCP** in the launcher, create the Tunnel and a regular API key, then press
    **Connect harness**.
 2. In ChatGPT, enable **Developer Mode** and create a new Tunnel connector named exactly
-   **Codex Native3**, with **Authentication: None**.
+   **Codex Native4**, with **Authentication: None**.
 3. Set the connector's permissions to **Allow all actions**. The lower-risk setting blocks command
    and patch calls before they reach Codex.
 4. Run **Verify runtime**.
 
 ChatGPT caches a connector's tool list by its identity. Do not rename or refresh an older
-`Codex Native` or `Codex Native2` connector; create `Codex Native3` as a new one so the context,
+`Codex Native` or `Codex Native2` connector; create `Codex Native4` as a new one so the context,
 memory, and delegation tools are visible.
 
 ## Enabling the two-quota workflow
@@ -183,7 +183,7 @@ Known constraints the bridge already handles:
 | Mode | Local Codex tools | Extra setup |
 | --- | --- | --- |
 | **Browser-only** | No; Codex shows a warning | None |
-| **Full harness** | Yes, for every effort the account exposes | OpenAI tunnel + `Codex Native3` connector |
+| **Full harness** | Yes, for every effort the account exposes | OpenAI tunnel + `Codex Native4` connector |
 | **Zero Risk** | Yes; you paste and send each prompt yourself | Separate tunnel + `Codex Zero Risk` connector |
 
 Context via MCP, durable memory, and automatic delegation require **Full harness** in automatic
@@ -215,7 +215,7 @@ bun run app:package
 ```
 
 `dev:launcher` runs a second, isolated launcher profile under `~/.codex-chatgpt-web-dev` with its own
-browser login, configuration, broker, and tunnel, using the connector name `Codex Native3 DEV`.
+browser login, configuration, broker, and tunnel, using the connector name `Codex Native4 DEV`.
 
 When running the test suite on a machine where the two environment variables are set, unset them
 first; they change the compiled prompt and would make contract tests fail:

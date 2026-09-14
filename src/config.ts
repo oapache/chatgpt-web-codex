@@ -19,10 +19,10 @@ export type SubagentProtocol = "compatibility-v1" | "native";
  * ChatGPT caches a connector's public MCP contract by connector identity. The direct turn-token
  * contract therefore has a new identity instead of mutating the retired connector in place.
  */
-export const CHATGPT_CONNECTOR_NAME = "Codex Native3";
+export const CHATGPT_CONNECTOR_NAME = "Codex Native4";
 export const DEV_CHATGPT_CONNECTOR_NAME = `${CHATGPT_CONNECTOR_NAME} DEV`;
 export const ZERO_RISK_CHATGPT_CONNECTOR_NAME = "Codex Zero Risk";
-export const LEGACY_CHATGPT_CONNECTOR_NAMES = ["Codex Native", "Codex Native2"] as const;
+export const LEGACY_CHATGPT_CONNECTOR_NAMES = ["Codex Native", "Codex Native2", "Codex Native3"] as const;
 
 export function isLegacyChatGptConnectorName(value: string): boolean {
   return (LEGACY_CHATGPT_CONNECTOR_NAMES as readonly string[]).includes(value);

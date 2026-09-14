@@ -18,7 +18,7 @@ test.each([[true, false, true], [false, false, true], [true, true, true], [true,
   let released = false;
   const page = { evaluate: async () => ({}), isClosed: () => false };
   const worker = Object.assign(Object.create(ChatGptBrowserWorker.prototype), {
-    config: { appName: "Codex Native3", browserDiagnosticsPath: diagnostics, ...(owned ? { browserHostDescriptorPath: "owned-descriptor" } : {}) },
+    config: { appName: "Codex Native4", browserDiagnosticsPath: diagnostics, ...(owned ? { browserHostDescriptorPath: "owned-descriptor" } : {}) },
     runStage: async (_trace: string, name: string, timeout: number, action: (signal: AbortSignal) => Promise<unknown>) => {
       stage = name;
       if (name === "send" || name.endsWith("_send")) sendBudgets.push(timeout);

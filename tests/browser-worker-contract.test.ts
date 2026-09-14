@@ -194,7 +194,7 @@ test("browser configuration rejects the retired connector identity before openin
     adapter: "chatgpt-web",
     baseUrl: "browser://chatgpt",
     chatgptWeb: { appName: "Codex Native" },
-  })).toThrow(/requires a newly created connector named "Codex Native3".*do not rename or refresh/s);
+  })).toThrow(/requires a newly created connector named "Codex Native4".*do not rename or refresh/s);
 });
 
 test("connector verification reports a legacy-only ChatGPT menu as a migration error", async () => {
@@ -207,16 +207,16 @@ test("connector verification reports a legacy-only ChatGPT menu as a migration e
   }, {}, 4);
 
   expect(message).toContain('Legacy ChatGPT connector "Codex Native" was found');
-  expect(message).toContain('newly created connector named "Codex Native3"');
+  expect(message).toContain('newly created connector named "Codex Native4"');
   expect(message).toContain('do not rename or refresh "Codex Native"');
   expect(message).not.toContain("Another connector");
 
   const mixedMessage = await connectorMentionFailure.call({
     config: { appName: CHATGPT_CONNECTOR_NAME },
-    connectorMentionRowTitles: async () => ["Codex Native", "Codex Native3", "Private chat title"],
+    connectorMentionRowTitles: async () => ["Codex Native", "Codex Native4", "Private chat title"],
   }, {}, 4);
   expect(mixedMessage).not.toContain("Legacy ChatGPT connector");
-  expect(mixedMessage).toContain('no row named "Codex Native3"');
+  expect(mixedMessage).toContain('no row named "Codex Native4"');
   expect(mixedMessage).not.toContain("Private chat title");
 });
 
